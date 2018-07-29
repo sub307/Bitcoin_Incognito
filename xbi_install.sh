@@ -117,7 +117,7 @@ EOF
   systemctl enable $COIN_NAME.service >/dev/null 2>&1
 
   if [[ -z "$(ps axo cmd:100 | egrep $COIN_DAEMON)" ]]; then
-    echo -e "${RED}$COIN_NAME is not running${NC}, please investigate. You should start by running the following commands as root:"
+    echo -e "${RED}$COIN_NAME is not running${NC}, please investigate. You should start by running the following commands as $XBIuser."
     echo -e "${GREEN}systemctl start $COIN_NAME.service"
     echo -e "systemctl status $COIN_NAME.service"
     echo -e "less /var/log/syslog${NC}"
@@ -179,10 +179,10 @@ EOF
 
 function enable_firewall() {
   echo -e "Installing and setting up firewall to allow ingress on port ${GREEN}$COIN_PORT${NC}"
-  ufw allow $COIN_PORT/tcp comment "$COIN_NAME MN port" >/dev/null
-  ufw allow ssh comment "SSH" >/dev/null 2>&1
-  ufw limit ssh/tcp >/dev/null 2>&1
-  ufw default allow outgoing >/dev/null 2>&1
+  sudo ufw allow $COIN_PORT/tcp comment "$COIN_NAME MN port" >/dev/null
+  sudo ufw allow ssh comment "SSH" >/dev/null 2>&1
+  sudo ufw limit ssh/tcp >/dev/null 2>&1
+  sudo ufw default allow outgoing >/dev/null 2>&1
   echo "y" | ufw enable >/dev/null 2>&1
 }
 
@@ -224,7 +224,7 @@ if [[ $(lsb_release -d) != *16.04* ]]; then
 fi
 
 if [[ $EUID -ne 0 ]]; then
-   echo -e "${RED}$0 must be run as root.${NC}"
+   echo -e "${RED}$0 must be run as root, or by using sudo.${NC}"
    exit 1
 fi
 
