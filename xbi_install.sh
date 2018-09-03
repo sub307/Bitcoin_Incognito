@@ -25,7 +25,7 @@ GREEN="\033[0;32m"
 NC='\033[0m'
 MAG='\e[1;35m'
 
-purgeOldInstallation() {
+function purgeOldInstallation() {
     echo -e "${GREEN}Searching and removing old $COIN_NAME files and configurations${NC}"
     #kill wallet daemon
     systemctl stop $COIN_NAME.service > /dev/null 2>&1
@@ -67,7 +67,7 @@ sudo passwd $XBIuser
 sudo usermod -aG sudo $XBIuser
 # connect as new user and start xbid
 echo -e "Becoming user $XBIuser to copy and run XBI binaries : "|tee -a $MyLog
-sudo su - $XBIuser <<EOF
+sudo su $XBIuser <<EOF
 }
 
 function download_node() {
