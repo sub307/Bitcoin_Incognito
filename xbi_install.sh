@@ -67,7 +67,7 @@ sudo passwd $XBIuser
 sudo usermod -aG sudo $XBIuser
 # connect as new user and start xbid
 echo -e "Becoming user $XBIuser to copy and run XBI binaries : "|tee -a $MyLog
-sudo su $XBIuser <<EOF
+sudo su $XBIuser
 }
 
 function download_node() {
