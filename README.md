@@ -206,7 +206,7 @@ If you do, congratulations! You have now setup a masternode. If you do not, plea
 If you don't see ***status 4***
 
 Check if your wallet is syncing with `xbi-cli getinfo`. 
-If your wallet is stuck, use the commands `systemctl stop XBI.service` and `xbid -reindex -daemon` to reindex.
+If your wallet is stuck, use the commands `wget https://raw.githubusercontent.com/nashscly/XBI/master/xbi_stuck_fix.sh`, and `bash xbi_stuck_fix.sh` to use a bootstrap.
 Wait a few minutes and check the status again with `xbi-cli getinfo`
 If your wallet is on the correct block, use `xbi-cli stop` and `systemctl start XBI.service` to restart the service.
 Wait until `xbi-cli mnsync status` returns true on everything but the "isFailed"
