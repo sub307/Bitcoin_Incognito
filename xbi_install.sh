@@ -1,13 +1,12 @@
 #!/bin/bash
 
-TMP_FOLDER=$(mktemp -d)
 CONFIG_FILE='xbi.conf'
 CONFIGFOLDER='/root/.XBI'
 COIN_DAEMON='xbid'
 COIN_CLI='xbi-cli'
 COIN_PATH='/usr/local/bin/'
 COIN_REPO="https://github.com/XBIncognito/xbi-4.3.2.1/releases/download/4.3.2.1/"
-BOOTSTRAP="https://github.com/sub307/XBI-bootstrap/releases/download/417018/bootstrap417018.rar"
+BOOTSTRAP="https://github.com/XBIncognito/chain-data/releases/download/v4.3.2.1/417018.rar"
 COIN_ZIPFILE="xbi-linux-daemon-4.3.2.1.zip"
 COIN_TGZ="${COIN_REPO}${COIN_ZIPFILE}"
 COIN_ZIP=$(echo $COIN_TGZ | awk -F'/' '{print $NF}')
@@ -31,7 +30,9 @@ function purgeOldInstallation() {
     echo -e "${GREEN}Searching and removing old $COIN_NAME files and configurations${NC}"
     #kill wallet daemon
     systemctl stop $COIN_NAME.service > /dev/null 2>&1
-    sudo killall $COIN_DAEMON > /dev/null 2>&1
+    killall $COIN_DAEMON > /dev/null 2>&1
+    killall $COIN_DAEMON > /dev/null 2>&1
+    
 	# Save Key 
 	OLDKEY=$(awk -F'=' '/masternodeprivkey/ {print $2}' $CONFIGFOLDER/$CONFIG_FILE 2> /dev/null)
 	if [ "$?" -eq "0" ]; then
@@ -39,7 +40,8 @@ function purgeOldInstallation() {
 		echo -e $OLDKEY
 	fi
     #remove old ufw port allow
-    sudo ufw delete allow $OLD_PORT/tcp > /dev/null 2>&1
+    ufw delete allow $OLD_PORT/tcp > /dev/null 2>&1
+    sleep 0.5s
     #remove old files
     rm -- "$0" > /dev/null 2>&1
     rm -rf $CONFIGFOLDER > /dev/null 2>&1
@@ -51,14 +53,16 @@ function purgeOldInstallation() {
 
 function download_node() {
   echo -e "${GREEN}Downloading and Installing VPS $COIN_NAME Daemon${NC}"
-  cd $TMP_FOLDER > /dev/null 2>&1
-  wget -q $COIN_TGZ
-  compile_error
+  cd ~ > /dev/null 2>&1
+  wget -q $COIN_TGZ 
   unzip $COIN_ZIP > /dev/null 2>&1
   chmod +x $COIN_DAEMON $COIN_CLI
   mv $COIN_DAEMON $COIN_CLI $COIN_PATH
+  cd $COIN_PATH > /dev/null 2>&1
+  strip $COIN_DAEMON
+  strip $COIN_CLI
   cd ~ > /dev/null 2>&1
-  rm -rf $TMP_FOLDER > /dev/null 2>&1
+  rm $COIN_ZIP > /dev/null 2>&1
   clear
 }
 
@@ -101,8 +105,8 @@ EOF
 
   systemctl daemon-reload
   sleep 3
-  systemctl start $COIN_NAME.service
   systemctl enable $COIN_NAME.service > /dev/null 2>&1
+  systemctl start $COIN_NAME.service
 
   if [[ -z "$(ps axo cmd:100 | egrep $COIN_DAEMON)" ]]; then
     echo -e "${RED}$COIN_NAME is not running${NC}, please investigate. You should start by running the following commands as root:"
@@ -115,6 +119,9 @@ EOF
 
 
 function create_config() {
+echo
+echo -e "${CYAN}* Creating masternode configuration file...${NC}"
+
   RPCUSER=$(tr -cd '[:alnum:]' < /dev/urandom | fold -w10 | head -n1)
   RPCPASSWORD=$(tr -cd '[:alnum:]' < /dev/urandom | fold -w22 | head -n1)
   cat << EOF > $CONFIGFOLDER/$CONFIG_FILE
@@ -130,23 +137,46 @@ EOF
 }
 
 function create_key() {
-  echo -e "${YELLOW}Enter your ${RED}$COIN_NAME Masternode GEN Key${NC}."
-  read -e COINKEY
-  if [[ -z "$COINKEY" ]]; then
-  $COIN_PATH$COIN_DAEMON -daemon
-  sleep 30
-  if [ -z "$(ps axo cmd:100 | grep $COIN_DAEMON)" ]; then
-   echo -e "${RED}$COIN_NAME server couldn not start. Check /var/log/syslog for errors.{$NC}"
-   exit 1
+  GENERATE_NEW_KEY="false"
+  
+  if [ -z "${OLD_KEY}" ]; then
+    GENERATE_NEW_KEY="true"
   fi
-  COINKEY=$($COIN_PATH$COIN_CLI masternode genkey)
-  if [ "$?" -gt "0" ];
-    then
-    echo -e "${RED}Wallet not fully loaded. Let us wait and try again to generate the GEN Key${NC}"
-    sleep 30
-    COINKEY=$($COIN_PATH$COIN_CLI masternode genkey)
-  fi
+  if [ "${OLD_KEY}" == " " ] || [ "${OLD_KEY}" == "  " ] || [ "${OLD_KEY}" == "   " ]; then
+    GENERATE_NEW_KEY="true"
+  fi  
+  
+  if [ ${GENERATE_NEW_KEY} == "true" ]; then
+    echo -e "${YELLOW}Enter your ${RED}$COIN_NAME Masternode GEN Key${NC}."
+    read -e COINKEY
+    if [[ -z "$COINKEY" ]]; then
+    $COIN_PATH$COIN_DAEMON
+    sleep 15
+    unset COINKEY
+    count="1"
+        while true
+        do
+            COINKEY="$(${COIN_PATH}${COIN_CLI} masternode genkey 2> /dev/null)"
+            if [ ${#COINKEY} -lt "15" ]; then
+                echo -e "    ${YELLOW}> Waiting for daemon to start...${NC}"; sleep 0.5s
+                sleep 5s
+                ((count++))
+                if [ "${count}" -ge "10" ]; then
+                    echo
+                    echo -e "${RED}Error: A problem occured while starting daemon. Restart script to try again please.${NC}"
+                    echo
+                    exit 1
+                fi
+            else
+                echo -e "    ${YELLOW}> Daemon is running...${NC}"; sleep 0.5s
+                echo -e "    ${GREEN}> Generated a new Masternode Private Key.${NC}"; sleep 0.5s
+                break
+            fi
+        done
+	
   $COIN_PATH$COIN_CLI stop
+else
+ COINKEY="${OLD_KEY}"
 fi
 clear
 }
@@ -199,15 +229,6 @@ function get_ip() {
 }
 
 
-function compile_error() {
-if [ "$?" -gt "0" ];
- then
-  echo -e "${RED}Failed to compile $COIN_NAME. Please investigate.${NC}"
-  exit 1
-fi
-}
-
-
 function checks() {
 if [[ $(lsb_release -d) != *16.04* ]]; then
   echo -e "${RED}You are not running Ubuntu 16.04. Installation is cancelled.${NC}"
@@ -218,33 +239,40 @@ if [[ $EUID -ne 0 ]]; then
    echo -e "${RED}$0 must be run as root.${NC}"
    exit 1
 fi
-
-if [ -n "$(pidof $COIN_DAEMON)" ] || [ -e "$COIN_DAEMOM" ] ; then
-  echo -e "${RED}$COIN_NAME is already installed.${NC}"
-  exit 1
-fi
 }
 
 function prepare_system() {
-echo -e "Preparing the VPS to setup. ${CYAN}$COIN_NAME${NC} ${RED}Masternode${NC}"
+echo -e "Preparing the VPS to setup. ${GREEN}$COIN_NAME${NC} ${CYAN}Masternode${NC}"
+echo -e "Making sure system is up to date..."
 apt-get update > /dev/null 2>&1
 apt-get -y upgrade > /dev/null 2>&1
-DEBIAN_FRONTEND=noninteractive apt-get update > /dev/null 2>&1
-DEBIAN_FRONTEND=noninteractive apt-get -o Dpkg::Options::="--force-confdef" -o Dpkg::Options::="--force-confold" -y -qq upgrade > /dev/null 2>&1
-apt install -y software-properties-common > /dev/null 2>&1
+
+
+
+export DEBIAN_FRONTEND=noninteractive
+aptget_params='--quiet -y'
+
 echo -e "${PURPLE}Adding bitcoin PPA repository"
 apt-add-repository -y ppa:bitcoin/bitcoin > /dev/null 2>&1
+apt-get ${aptget_params} install software-properties-common > /dev/null 2>&1
+
+dpkg --clear-avail > /dev/null 2>&1
+apt-get ${aptget_params} update > /dev/null 2>&1
+apt-get --quiet -f install > /dev/null 2>&1
+dpkg --configure -a > /dev/null 2>&1
+
+# intentional duplicate to avoid some errors
+apt-get ${aptget_params} update > /dev/null 2>&1
+apt-get ${aptget_params} upgrade > /dev/null 2>&1
+
 echo -e "Installing required packages, it may take some time to finish.${NC}"
-apt-get update > /dev/null 2>&1
-apt-get install libzmq3-dev -y > /dev/null 2>&1
-apt-get install -y -o Dpkg::Options::="--force-confdef" -o Dpkg::Options::="--force-confold" make software-properties-common \
-build-essential libtool autoconf libssl-dev libboost-dev libboost-chrono-dev libboost-filesystem-dev libboost-program-options-dev \
-libboost-system-dev libboost-test-dev libboost-thread-dev sudo automake git wget curl libdb4.8-dev bsdmainutils libdb4.8++-dev \
-libminiupnpc-dev libgmp3-dev ufw pkg-config libevent-dev  libdb5.3++ unzip unrar libzmq5 autotools-dev python3 libboost-dev \
-libevent-1.4-2 libboost-all-dev libqt5gui5 libqt5core5a libqt5dbus5 qttools5-dev qttools5-dev-tools libprotobuf-dev protobuf-compiler \
-libqrencode-dev git multitail vim unrar htop ntpdate > /dev/null 2>&1
-apt-get update > /dev/null 2>&1
-apt-get -y upgrade > /dev/null 2>&1
+package_list="build-essential libtool curl autotools-dev automake pkg-config libssl-dev libevent-dev bsdmainutils python3 ufw libboost-system-dev libboost-filesystem-dev libboost-chrono-dev libboost-program-options-dev libboost-test-dev libboost-thread-dev libboost-dev libevent-1.4-2 libdb4.8-dev libdb4.8++-dev autoconf libboost-all-dev libqt5gui5 libqt5core5a libqt5dbus5 qttools5-dev qttools5-dev-tools libprotobuf-dev protobuf-compiler libqrencode-dev libminiupnpc-dev git multitail vim unzip unrar htop ntpdate"
+apt-get ${aptget_params} install ${package_list} > /dev/null 2>&1 || apt-get ${aptget_params} install ${package_list} > /dev/null 2>&1
+
+apt-get ${aptget_params} install ${package_list} > /dev/null 2>&1 || apt-get ${aptget_params} install ${package_list} > /dev/null 2>&1
+
+apt-get ${aptget_params} update > /dev/null 2>&1
+apt-get ${aptget_params} upgrade > /dev/null 2>&1
 if [ "$?" -gt "0" ];
   then
     echo -e "${RED}Not all required packages were installed properly. Try to install them manually by running the following commands:${NC}\n"
@@ -257,6 +285,9 @@ libboost-program-options-dev libboost-system-dev libboost-test-dev libboost-thre
 bsdmainutils libdb4.8++-dev libminiupnpc-dev libgmp3-dev ufw pkg-config libevent-dev libdb5.3++ unzip libzmq5"
  exit 1
 fi
+echo -e "    ${GREEN}> ${YELLOW}synchronize time${NC}"; sleep 0.5s
+ntpdate -s time.nist.gov
+
 clear
 }
 
@@ -290,7 +321,7 @@ function important_information() {
  echo -e "${GREEN}VPS_IP:${NC}${GREEN}$NODEIP:$COIN_PORT${NC}"
  echo -e "${GREEN}MASTERNODE GENKEY is:${NC}${PURPLE}$COINKEY${NC}"
  echo -e "${BLUE}================================================================================================================================${NC}"
- echo -e "${CYAN}Ensure Node is fully SYNCED with BLOCKCHAIN before starting your Node :).${NC}"
+ echo -e "${RED}Ensure Node is fully SYNCED with BLOCKCHAIN before starting your Node :).${NC}"
  echo -e "${BLUE}================================================================================================================================${NC}"
  echo -e "${GREEN}Usage Commands.${NC}"
  echo -e "${GREEN}xbi-cli masternode status${NC}"
