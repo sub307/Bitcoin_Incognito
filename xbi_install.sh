@@ -137,48 +137,49 @@ EOF
 }
 
 function create_key() {
-  GENERATE_NEW_KEY="false"
+ GENERATE_NEW_KEY="false"
   
-  if [ -z "${OLD_KEY}" ]; then
-    GENERATE_NEW_KEY="true"
+ if [ -z "${OLD_KEY}" ]; then
+  GENERATE_NEW_KEY="true"
+ fi
+ if [ "${OLD_KEY}" == " " ] || [ "${OLD_KEY}" == "  " ] || [ "${OLD_KEY}" == "   " ]; then
+  GENERATE_NEW_KEY="true"
+ fi  
+  
+ if [ ${GENERATE_NEW_KEY} == "true" ]; then
+  echo -e "${YELLOW}Enter your ${RED}$COIN_NAME Masternode GEN Key${NC}."
+  read -e COINKEY
+  if [[ -z "$COINKEY" ]]; then
+   $COIN_PATH$COIN_DAEMON
+   sleep 15
+   unset COINKEY
+   count="1"
+   while true
+    do
+     COINKEY="$(${COIN_PATH}${COIN_CLI} masternode genkey 2> /dev/null)"
+     if [ ${#COINKEY} -lt "15" ]; then
+      echo -e "    ${YELLOW}> Waiting for daemon to start...${NC}"; sleep 0.5s
+      sleep 5s
+      ((count++))
+      if [ "${count}" -ge "10" ]; then
+       echo
+       echo -e "${RED}Error: A problem occured while starting daemon. Restart script to try again please.${NC}"
+       echo
+       exit 1
+      fi
+     else
+      echo -e "    ${YELLOW}> Daemon is running...${NC}"; sleep 0.5s
+      echo -e "    ${GREEN}> Generated a new Masternode Private Key.${NC}"; sleep 0.5s
+      break
+     fi
+    done
+   $COIN_PATH$COIN_CLI stop
   fi
-  if [ "${OLD_KEY}" == " " ] || [ "${OLD_KEY}" == "  " ] || [ "${OLD_KEY}" == "   " ]; then
-    GENERATE_NEW_KEY="true"
-  fi  
-  
-  if [ ${GENERATE_NEW_KEY} == "true" ]; then
-    echo -e "${YELLOW}Enter your ${RED}$COIN_NAME Masternode GEN Key${NC}."
-    read -e COINKEY
-    if [[ -z "$COINKEY" ]]; then
-    $COIN_PATH$COIN_DAEMON
-    sleep 15
-    unset COINKEY
-    count="1"
-        while true
-        do
-            COINKEY="$(${COIN_PATH}${COIN_CLI} masternode genkey 2> /dev/null)"
-            if [ ${#COINKEY} -lt "15" ]; then
-                echo -e "    ${YELLOW}> Waiting for daemon to start...${NC}"; sleep 0.5s
-                sleep 5s
-                ((count++))
-                if [ "${count}" -ge "10" ]; then
-                    echo
-                    echo -e "${RED}Error: A problem occured while starting daemon. Restart script to try again please.${NC}"
-                    echo
-                    exit 1
-                fi
-            else
-                echo -e "    ${YELLOW}> Daemon is running...${NC}"; sleep 0.5s
-                echo -e "    ${GREEN}> Generated a new Masternode Private Key.${NC}"; sleep 0.5s
-                break
-            fi
-        done
-	
-  $COIN_PATH$COIN_CLI stop
-else
- COINKEY="${OLD_KEY}"
-fi
-clear
+ else
+  COINKEY="${OLD_KEY}"
+ fi
+   
+ clear
 }
 
 function update_config() {
