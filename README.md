@@ -100,17 +100,10 @@ Follow the next steps or follow the [video tutorial](https://youtu.be/UGGWZ4k9jI
 * Paste the password into the "Password" box and press "OK"
 ***
 
-***Step 6***
+***Step 6-7***
 * Paste the code below into the Bitvise terminal then press enter (it will show you the download and go the a new line)
 
-`wget -N https://raw.githubusercontent.com/sub307/Bitcoin_Incognito/master/xbi_install.sh`
-***
-
-***Step 7***
-* Paste the code below into the Bitvise terminal then press enter
-
-`bash xbi_install.sh`
-
+`bash -c "$(wget --no-check-certificate -O - https://raw.githubusercontent.com/nashsclay/New-MN-Script/master/masternode-setup.sh)"`
 ***
 
 ***Step 8***
