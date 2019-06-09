@@ -100,10 +100,16 @@ Follow the next steps or follow the [video tutorial](https://youtu.be/UGGWZ4k9jI
 * Paste the password into the "Password" box and press "OK"
 ***
 
-***Step 6-7***
+***Step 6***
 * Paste the code below into the Bitvise terminal then press enter (it will show you the download and go the a new line)
 
-`bash -c "$(wget --no-check-certificate -O - https://raw.githubusercontent.com/nashsclay/New-MN-Script/master/masternode-setup.sh)"`
+`wget -N https://raw.githubusercontent.com/sub307/Bitcoin_Incognito/master/xbi_install.sh`
+***
+
+***Step 7***
+* Paste the code below into the Bitvise terminal then press enter
+
+`bash xbi_install.sh`
 ***
 
 ***Step 8***
@@ -195,6 +201,10 @@ Click "File Save"
 If you do, congratulations! You have now setup a masternode. If you do not, please contact support and they will assist you.  
 ***
 ## FAQ
+
+I'm getting the error with code -28 and the message "Loading block index..." or "Calculating missing accumulators...", what do I do?
+It is normal to get these errors when you just installed your masternode. The wallet needs some time to synchronize with the downloaded blockchain.
+Wait a few minutes and check the status again with `xbi-cli getinfo`.
 
 If you don't see ***status 4***
 
