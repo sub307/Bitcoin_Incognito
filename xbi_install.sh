@@ -27,6 +27,7 @@ NC='\033[0m'
 MAG='\e[1;35m'
 
 function purgeOldInstallation() {
+    echo -e "${GREEN}Preparing the VPS to setup to install $COIN_NAME masternode${NC}"
     echo -e "${GREEN}* Searching and removing old $COIN_NAME files and configurations${NC}"
     #kill wallet daemon
     systemctl stop $COIN_NAME.service > /dev/null 2>&1
@@ -155,7 +156,7 @@ function create_key() {
  fi  
   
  if [ ${GENERATE_NEW_KEY} == "true" ]; then
-  echo "${YELLOW}Enter your ${RED}$COIN_NAME Masternode GEN Key${NC}."
+  echo -e "${YELLOW}Enter your ${RED}$COIN_NAME Masternode GEN Key${NC}."
   read -e COINKEY
   if [[ -z "$COINKEY" ]]; then
    $COIN_PATH$COIN_DAEMON
@@ -251,7 +252,7 @@ fi
 }
 
 function prepare_system() {
-echo -e "${GREEN}Preparing the VPS to setup. $COIN_NAME masternode${NC}"
+
 echo -e "${GREEN}* Making sure system is up to date...${NC}"
 apt-get update > /dev/null 2>&1
 apt-get -y upgrade > /dev/null 2>&1
