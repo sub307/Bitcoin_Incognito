@@ -27,7 +27,7 @@ NC='\033[0m'
 MAG='\e[1;35m'
 
 function purgeOldInstallation() {
-    echo -e "${GREEN}Searching and removing old $COIN_NAME files and configurations${NC}"
+    echo -e "${GREEN}* Searching and removing old $COIN_NAME files and configurations${NC}"
     #kill wallet daemon
     systemctl stop $COIN_NAME.service > /dev/null 2>&1
     killall $COIN_DAEMON > /dev/null 2>&1
@@ -36,7 +36,7 @@ function purgeOldInstallation() {
 	# Save Key 
 	OLDKEY=$(awk -F'=' '/masternodeprivkey/ {print $2}' $CONFIGFOLDER/$CONFIG_FILE 2> /dev/null)
 	if [ "$?" -eq "0" ]; then
-    		echo -e "${CYAN}Saving Old Installation Genkey${NC}"
+    		echo -e "    ${YELLOW}> Saving Old Installation Genkey${NC}"
 		echo -e $OLDKEY
 	fi
     #remove old ufw port allow
@@ -47,14 +47,16 @@ function purgeOldInstallation() {
     rm -rf $CONFIGFOLDER > /dev/null 2>&1
     rm -rf /usr/local/bin/$COIN_CLI /usr/local/bin/$COIN_DAEMON> /dev/null 2>&1
     rm -rf /usr/bin/$COIN_CLI /usr/bin/$COIN_DAEMON > /dev/null 2>&1
-    echo -e "${GREEN}* Done${NONE}";
+    echo -e "    ${YELLOW}> Done${NC}";
 }
 
 
 function download_node() {
-  echo -e "${GREEN}Downloading and Installing VPS $COIN_NAME Daemon${NC}"
+  echo -e "${GREEN}* Downloading and Installing VPS $COIN_NAME Daemon${NC}"
   cd ~ > /dev/null 2>&1
+  echo -e "    ${YELLOW}> Downloading...${NC}"
   wget -q $COIN_TGZ 
+  echo -e "    ${YELLOW}> Extracting...${NC}"
   unzip $COIN_ZIP > /dev/null 2>&1
   chmod +x $COIN_DAEMON $COIN_CLI
   mv $COIN_DAEMON $COIN_CLI $COIN_PATH
@@ -62,18 +64,23 @@ function download_node() {
   strip $COIN_DAEMON
   strip $COIN_CLI
   cd ~ > /dev/null 2>&1
+  echo -e "    ${YELLOW}> Removing zipfile...${NC}"
   rm $COIN_ZIP > /dev/null 2>&1
   clear
+  echo -e "    ${YELLOW}> Done${NC}"
 }
 
 function add_bootstrap(){
- echo -e "${GREEN}Downloading bootstrap"
- mkdir $CONFIGFOLDER > /dev/null 2>&1
+ echo -e "${GREEN}* Downloading bootstrap"
  cd $CONFIGFOLDER > /dev/null 2>&1
+ echo -e "    ${YELLOW}> Downloading...${NC}"
  wget -q $BOOTSTRAP -O bootstrap.rar
+ echo -e "    ${YELLOW}> Extracting...${NC}"
  unrar x bootstrap.rar >/dev/null 2>&1
+ echo -e "    ${YELLOW}> Removing zipfile...${NC}"
  rm bootstrap.rar > /dev/null 2>&1
  cd ~ > /dev/null 2>&1
+ echo -e "    ${YELLOW}> Done${NC}"
 }
 
 function configure_systemd() {
@@ -119,8 +126,9 @@ EOF
 
 
 function create_config() {
+mkdir $CONFIGFOLDER > /dev/null 2>&1
 echo
-echo -e "${CYAN}* Creating masternode configuration file...${NC}"
+echo -e "${GREEN}* Creating masternode configuration file...${NC}"
 
   RPCUSER=$(tr -cd '[:alnum:]' < /dev/urandom | fold -w10 | head -n1)
   RPCPASSWORD=$(tr -cd '[:alnum:]' < /dev/urandom | fold -w22 | head -n1)
@@ -147,7 +155,7 @@ function create_key() {
  fi  
   
  if [ ${GENERATE_NEW_KEY} == "true" ]; then
-  echo -e "${YELLOW}Enter your ${RED}$COIN_NAME Masternode GEN Key${NC}."
+  echo "${YELLOW}Enter your ${RED}$COIN_NAME Masternode GEN Key${NC}."
   read -e COINKEY
   if [[ -z "$COINKEY" ]]; then
    $COIN_PATH$COIN_DAEMON
@@ -197,7 +205,7 @@ EOF
 
 
 function enable_firewall() {
-  echo -e "Installing and setting up firewall to allow ingress on port ${GREEN}$COIN_PORT${NC}"
+  echo -e "${GREEN}* Installing and setting up firewall to allow ingress on port $COIN_PORT${NC}"
   ufw allow $COIN_PORT/tcp comment "$COIN_NAME MN port" >/dev/null
   ufw allow ssh comment "SSH" > /dev/null 2>&1
   ufw limit ssh/tcp > /dev/null 2>&1
@@ -215,7 +223,7 @@ function get_ip() {
 
   if [ ${#NODE_IPS[@]} -gt 1 ]
     then
-      echo -e "${GREEN}More than one IP. Please type 0 to use the first IP, 1 for the second and so on...${NC}"
+      echo -e "${YELLOW}More than one IP. Please type 0 to use the first IP, 1 for the second and so on...${NC}"
       INDEX=0
       for ip in "${NODE_IPS[@]}"
       do
@@ -243,8 +251,8 @@ fi
 }
 
 function prepare_system() {
-echo -e "Preparing the VPS to setup. ${GREEN}$COIN_NAME${NC} ${CYAN}Masternode${NC}"
-echo -e "Making sure system is up to date..."
+echo -e "${GREEN}Preparing the VPS to setup. $COIN_NAME masternode${NC}"
+echo -e "${GREEN}* Making sure system is up to date...${NC}"
 apt-get update > /dev/null 2>&1
 apt-get -y upgrade > /dev/null 2>&1
 
@@ -253,7 +261,7 @@ apt-get -y upgrade > /dev/null 2>&1
 export DEBIAN_FRONTEND=noninteractive
 aptget_params='--quiet -y'
 
-echo -e "${PURPLE}Adding bitcoin PPA repository"
+echo -e "    ${GREEN}> Adding bitcoin PPA repository"
 apt-add-repository -y ppa:bitcoin/bitcoin > /dev/null 2>&1
 apt-get ${aptget_params} install software-properties-common > /dev/null 2>&1
 
@@ -266,7 +274,7 @@ dpkg --configure -a > /dev/null 2>&1
 apt-get ${aptget_params} update > /dev/null 2>&1
 apt-get ${aptget_params} upgrade > /dev/null 2>&1
 
-echo -e "Installing required packages, it may take some time to finish.${NC}"
+echo -e "    ${GREEN}> Installing required packages, it may take some time to finish.${NC}"
 package_list="build-essential libtool curl autotools-dev automake pkg-config libssl-dev libevent-dev bsdmainutils python3 ufw libboost-system-dev libboost-filesystem-dev libboost-chrono-dev libboost-program-options-dev libboost-test-dev libboost-thread-dev libboost-dev libevent-1.4-2 libdb4.8-dev libdb4.8++-dev autoconf libboost-all-dev libqt5gui5 libqt5core5a libqt5dbus5 qttools5-dev qttools5-dev-tools libprotobuf-dev protobuf-compiler libqrencode-dev libminiupnpc-dev git multitail vim unzip unrar htop ntpdate"
 apt-get ${aptget_params} install ${package_list} > /dev/null 2>&1 || apt-get ${aptget_params} install ${package_list} > /dev/null 2>&1
 
@@ -286,26 +294,26 @@ libboost-program-options-dev libboost-system-dev libboost-test-dev libboost-thre
 bsdmainutils libdb4.8++-dev libminiupnpc-dev libgmp3-dev ufw pkg-config libevent-dev libdb5.3++ unzip libzmq5"
  exit 1
 fi
-echo -e "    ${GREEN}> ${YELLOW}synchronize time${NC}"; sleep 0.5s
+echo -e "    ${GREEN}> synchronize time${NC}"; sleep 0.5s
 ntpdate -s time.nist.gov
 
 clear
 }
 
 function create_swap() {
- echo -e "Checking if swap space is needed."
+ echo -e "${GREEN}* Checking if swap space is needed."
  PHYMEM=$(free -g|awk '/^Mem:/{print $2}')
  SWAP=$(swapon -s)
  if [[ "$PHYMEM" -lt "2"  &&  -z "$SWAP" ]]
   then
-    echo -e "${GREEN}Server is running with less than 2G of RAM without SWAP, creating 2G swap file.${NC}"
+    echo -e "    ${YELLOW}> Server is running with less than 2G of RAM without SWAP, creating 2G swap file.${NC}"
     SWAPFILE=$(mktemp)
     dd if=/dev/zero of=$SWAPFILE bs=1024 count=2M
     chmod 600 $SWAPFILE
     mkswap $SWAPFILE
     swapon -a $SWAPFILE
  else
-  echo -e "${GREEN}The server running with at least 2G of RAM, or a SWAP file is already in place.${NC}"
+  echo -e "    ${GREEN}> The server running with at least 2G of RAM, or a SWAP file is already in place.${NC}"
  fi
  clear
 }
@@ -313,7 +321,7 @@ function create_swap() {
 function important_information() {
  echo
  echo -e "${BLUE}================================================================================================================================${NC}"
- echo -e "${PURPLE}Windows Wallet Guide. https://github.com/sub307/Bitcoin_Incognito/blob/master/README.md${NC}"
+ echo -e "${BLUE}Windows Wallet Guide. https://github.com/sub307/Bitcoin_Incognito/blob/master/README.md${NC}"
  echo -e "${BLUE}================================================================================================================================${NC}"
  echo -e "${GREEN}$COIN_NAME Masternode is up and running listening on port${NC}${PURPLE}$COIN_PORT${NC}."
  echo -e "${GREEN}Configuration file is:${NC}${RED}$CONFIGFOLDER/$CONFIG_FILE${NC}"
@@ -336,6 +344,7 @@ function setup_node() {
   create_key
   update_config
   enable_firewall
+  add_bootstrap
   important_information
   configure_systemd
 }
@@ -349,5 +358,4 @@ checks
 prepare_system
 create_swap
 download_node
-add_bootstrap
 setup_node
