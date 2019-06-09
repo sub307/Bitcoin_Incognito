@@ -77,6 +77,9 @@ function add_bootstrap(){
  echo -e "    ${YELLOW}> Downloading...${NC}"
  wget -q $BOOTSTRAP -O bootstrap.rar
  echo -e "    ${YELLOW}> Extracting...${NC}"
+ rm -rf chainstate > /dev/null 2>&1
+ rm -rf blocks > /dev/null 2>&1
+ rm peers.dat > /dev/null 2>&1
  unrar x bootstrap.rar >/dev/null 2>&1
  echo -e "    ${YELLOW}> Removing zipfile...${NC}"
  rm bootstrap.rar > /dev/null 2>&1
