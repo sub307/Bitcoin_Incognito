@@ -5,7 +5,7 @@ CONFIGFOLDER='/root/.XBI'
 COIN_DAEMON='xbid'
 COIN_CLI='xbi-cli'
 COIN_PATH='/usr/local/bin/'
-COIN_REPO="https://github.com/XBIncognito/xbi-4.3.2.1/releases/download/4.3.2.2/"
+COIN_REPO="https://github.com/XBIncognito/xbi-4.3.2.1/releases/download/4.3.2.1/"
 BOOTSTRAP="https://github.com/sub307/XBI-bootstrap/releases/download/605720/605720.rar"
 COIN_ZIPFILE="xbi-daemon.zip"
 COIN_TGZ="${COIN_REPO}${COIN_ZIPFILE}"
@@ -59,7 +59,6 @@ function download_node() {
   wget -q $COIN_TGZ 
   echo -e "    ${YELLOW}> Extracting...${NC}"
   unzip $COIN_ZIP > /dev/null 2>&1
-  cd xbi-daemon
   chmod +x $COIN_DAEMON $COIN_CLI
   mv $COIN_DAEMON $COIN_CLI $COIN_PATH
   cd $COIN_PATH > /dev/null 2>&1
