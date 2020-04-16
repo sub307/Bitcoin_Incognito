@@ -131,7 +131,7 @@ Follow the next steps or follow the [video tutorial](https://youtu.be/UGGWZ4k9jI
 ## Section D: Preparing the Local wallet
 
 ***Step 1***
-* Download and install the XBI wallet [here](https://github.com/XBIncognito/xbi-4.3.21/releases)
+* Download and install the XBI wallet [here](https://github.com/XBIncognito/xbi-4.3.2.1/releases)
 ***
 
 ***Step 2***
