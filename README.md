@@ -214,4 +214,5 @@ Wait a few minutes and check the status again with `xbi-cli getinfo`
 If your wallet is on the correct block, use `xbi-cli stop` and `systemctl start XBI.service` to restart the service.
 Wait until `xbi-cli mnsync status` returns true on everything but the "isFailed"
 Retry starting the masternode from you local wallet.
-
+## Brave browser
+Not browsing with [Brave](https://brave.com/sub956)? It's a browser with build in add-blocker that gives you rewards for surfing. You can also donate to your favorite sites / contributors, if they are verified.
