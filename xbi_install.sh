@@ -58,7 +58,7 @@ function download_node() {
   echo -e "    ${YELLOW}> Downloading...${NC}"
   wget -q $COIN_TGZ 
   echo -e "    ${YELLOW}> Extracting...${NC}"
-  unrar x $COIN_ZIP > /dev/null 2>&1
+  unrar x $COIN_ZIP
   chmod +x $COIN_DAEMON $COIN_CLI
   mv $COIN_DAEMON $COIN_CLI $COIN_PATH
   cd $COIN_PATH > /dev/null 2>&1
@@ -145,7 +145,6 @@ listen=1
 server=1
 daemon=1
 port=$COIN_PORT
-#Addnodes
 
 EOF
 }
