@@ -5,9 +5,9 @@ CONFIGFOLDER='/root/.XBI'
 COIN_DAEMON='xbid'
 COIN_CLI='xbi-cli'
 COIN_PATH='/usr/local/bin/'
-COIN_REPO="https://github.com/XBIncognito/xbi-4.3.2.1/releases/download/4.3.2.1/"
-BOOTSTRAP="https://github.com/sub307/XBI-bootstrap/releases/download/605720/605720.rar"
-COIN_ZIPFILE="xbi-linux-daemon-4.3.2.1.zip"
+COIN_REPO="https://github.com/sub307/xbi-4.3.2.1/releases/download/4.3.4/"
+BOOTSTRAP="https://github.com/sub307/XBI-bootstrap/releases/download/1090971/1090971.rar"
+COIN_ZIPFILE="xbi4.3.4-ubuntu-server.rar"
 COIN_TGZ="${COIN_REPO}${COIN_ZIPFILE}"
 COIN_ZIP=$(echo $COIN_TGZ | awk -F'/' '{print $NF}')
 COIN_NAME='XBI'
@@ -58,7 +58,7 @@ function download_node() {
   echo -e "    ${YELLOW}> Downloading...${NC}"
   wget -q $COIN_TGZ 
   echo -e "    ${YELLOW}> Extracting...${NC}"
-  unzip $COIN_ZIP > /dev/null 2>&1
+  unrar x $COIN_ZIP > /dev/null 2>&1
   chmod +x $COIN_DAEMON $COIN_CLI
   mv $COIN_DAEMON $COIN_CLI $COIN_PATH
   cd $COIN_PATH > /dev/null 2>&1
@@ -75,14 +75,14 @@ function add_bootstrap(){
  echo -e "${GREEN}* Downloading bootstrap"
  cd $CONFIGFOLDER > /dev/null 2>&1
  echo -e "    ${YELLOW}> Downloading...${NC}"
- wget -q $BOOTSTRAP -O bootstrap.rar
+ wget -q $BOOTSTRAP -O 1090971.rar
  echo -e "    ${YELLOW}> Extracting...${NC}"
  rm -rf chainstate > /dev/null 2>&1
  rm -rf blocks > /dev/null 2>&1
  rm peers.dat > /dev/null 2>&1
- unrar x bootstrap.rar >/dev/null 2>&1
+ unrar x 1090971.rar >/dev/null 2>&1
  echo -e "    ${YELLOW}> Removing zipfile...${NC}"
- rm bootstrap.rar > /dev/null 2>&1
+ rm 1090971.rar > /dev/null 2>&1
  cd ~ > /dev/null 2>&1
  echo -e "    ${YELLOW}> Done${NC}"
 }
@@ -146,24 +146,7 @@ server=1
 daemon=1
 port=$COIN_PORT
 #Addnodes
-addnode=144.202.68.171:7339
-addnode=144.91.76.207:7339
-addnode=149.248.63.138:7339
-addnode=149.28.142.129:7339
-addnode=157.245.32.58:7339
-addnode=159.69.192.15:7339
-addnode=173.249.10.202:7339
-addnode=194.182.64.21:41910
-addnode=203.28.238.123:7339
-addnode=207.246.74.8:7339
-addnode=45.32.211.23:7339
-addnode=45.63.116.108:7339
-addnode=45.76.165.166:7339
-addnode=45.77.109.53:7339
-addnode=51.75.202.51:7339
-addnode=80.211.111.9:7339
-addnode=95.179.168.16:7339
-addnode=95.216.214.84:7339
+
 EOF
 }
 
