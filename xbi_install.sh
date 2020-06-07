@@ -59,13 +59,14 @@ function download_node() {
   wget -q $COIN_TGZ 
   echo -e "    ${YELLOW}> Extracting...${NC}"
   unrar x $COIN_ZIP
-  chmod +x $COIN_DAEMON $COIN_CLI
-  mv $COIN_DAEMON $COIN_CLI $COIN_PATH
-  cd $COIN_PATH > /dev/null 2>&1
+  cd xbi4.3.4-ubuntu-server
   strip $COIN_DAEMON
   strip $COIN_CLI
+  chmod +x $COIN_DAEMON $COIN_CLI
+  mv $COIN_DAEMON $COIN_CLI $COIN_PATH
   cd ~ > /dev/null 2>&1
   echo -e "    ${YELLOW}> Removing zipfile...${NC}"
+  rm -rf xbi4.3.4-ubuntu-server
   rm $COIN_ZIP > /dev/null 2>&1
   clear
   echo -e "    ${YELLOW}> Done${NC}"
