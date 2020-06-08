@@ -5,9 +5,9 @@ CONFIGFOLDER='/root/.XBI'
 COIN_DAEMON='xbid'
 COIN_CLI='xbi-cli'
 COIN_PATH='/usr/local/bin/'
-COIN_REPO="https://github.com/sub307/xbi-4.3.2.1/releases/download/4.3.4/"
-BOOTSTRAP="https://github.com/sub307/XBI-bootstrap/releases/download/1090971/1090971.rar"
-COIN_ZIPFILE="xbi4.3.4-ubuntu-server.rar"
+COIN_REPO="https://github.com/XBIncognito/xbi-4.3.2.1/releases/download/4.4.0/"
+BOOTSTRAP="https://github.com/sub307/XBI-bootstrap/releases/download/1092871/1092871.rar"
+COIN_ZIPFILE="Xbi-linux.zip"
 COIN_TGZ="${COIN_REPO}${COIN_ZIPFILE}"
 COIN_ZIP=$(echo $COIN_TGZ | awk -F'/' '{print $NF}')
 COIN_NAME='XBI'
@@ -58,15 +58,14 @@ function download_node() {
   echo -e "    ${YELLOW}> Downloading...${NC}"
   wget -q $COIN_TGZ 
   echo -e "    ${YELLOW}> Extracting...${NC}"
-  unrar x $COIN_ZIP
-  cd xbi4.3.4-ubuntu-server
+  unzip $COIN_ZIP
   strip $COIN_DAEMON
   strip $COIN_CLI
   chmod +x $COIN_DAEMON $COIN_CLI
   mv $COIN_DAEMON $COIN_CLI $COIN_PATH
   cd ~ > /dev/null 2>&1
   echo -e "    ${YELLOW}> Removing zipfile...${NC}"
-  rm -rf xbi4.3.4-ubuntu-server
+  rm xbi-qt xbi-tx
   rm $COIN_ZIP > /dev/null 2>&1
   clear
   echo -e "    ${YELLOW}> Done${NC}"
@@ -76,14 +75,14 @@ function add_bootstrap(){
  echo -e "${GREEN}* Downloading bootstrap"
  cd $CONFIGFOLDER > /dev/null 2>&1
  echo -e "    ${YELLOW}> Downloading...${NC}"
- wget -q $BOOTSTRAP -O 1090971.rar
+ wget -q $BOOTSTRAP -O 1092871.rar
  echo -e "    ${YELLOW}> Extracting...${NC}"
  rm -rf chainstate > /dev/null 2>&1
  rm -rf blocks > /dev/null 2>&1
  rm peers.dat > /dev/null 2>&1
- unrar x 1090971.rar >/dev/null 2>&1
+ unrar x 1092871.rar >/dev/null 2>&1
  echo -e "    ${YELLOW}> Removing zipfile...${NC}"
- rm 1090971.rar > /dev/null 2>&1
+ rm 1092871.rar > /dev/null 2>&1
  cd ~ > /dev/null 2>&1
  echo -e "    ${YELLOW}> Done${NC}"
 }
