@@ -183,6 +183,7 @@ Click "File Save"
 
 ***Step 3***
 * Close out of the wallet and reopen Wallet
+* Select your masternode tab, select the masternode and click "start alias" OR
 * Open debug console and enter `startmasternode all false` if you don't have any other masternodes running, otherwise use `startmasternode alias false 'Alias'`
 * 'Alias' should be replaced with the alias you gave your new masternode, like MN01 in our example
 
