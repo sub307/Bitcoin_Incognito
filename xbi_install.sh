@@ -58,7 +58,7 @@ function download_node() {
   echo -e "    ${YELLOW}> Downloading...${NC}"
   wget -q $COIN_TGZ 
   echo -e "    ${YELLOW}> Extracting...${NC}"
-  unzip $COIN_ZIP
+  unzip $COIN_ZIP > /dev/null 2>&1
   strip $COIN_DAEMON
   strip $COIN_CLI
   chmod +x $COIN_DAEMON $COIN_CLI
