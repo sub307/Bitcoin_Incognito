@@ -6,7 +6,7 @@ COIN_DAEMON='xbid'
 COIN_CLI='xbi-cli'
 COIN_PATH='/usr/local/bin/'
 COIN_REPO="https://github.com/XBIncognito/xbi-4.3.2.1/releases/download/4.4.0/"
-BOOTSTRAP="https://github.com/sub307/XBI-bootstrap/releases/download/1095150/1095150.rar"
+BOOTSTRAP="https://github.com/sub307/XBI-bootstrap/releases/download/1096788/1096788.rar"
 COIN_ZIPFILE="Xbi-linux.zip"
 COIN_TGZ="${COIN_REPO}${COIN_ZIPFILE}"
 COIN_ZIP=$(echo $COIN_TGZ | awk -F'/' '{print $NF}')
@@ -75,14 +75,14 @@ function add_bootstrap(){
  echo -e "${GREEN}* Downloading bootstrap"
  cd $CONFIGFOLDER > /dev/null 2>&1
  echo -e "    ${YELLOW}> Downloading...${NC}"
- wget -q $BOOTSTRAP -O 1095150.rar
+ wget -q $BOOTSTRAP -O bootstrap.rar
  echo -e "    ${YELLOW}> Extracting...${NC}"
  rm -rf chainstate > /dev/null 2>&1
  rm -rf blocks > /dev/null 2>&1
  rm peers.dat > /dev/null 2>&1
- unrar x 1095150.rar >/dev/null 2>&1
+ unrar x bootstrap.rar >/dev/null 2>&1
  echo -e "    ${YELLOW}> Removing zipfile...${NC}"
- rm 1095150.rar > /dev/null 2>&1
+ rm bootstrap.rar > /dev/null 2>&1
  cd ~ > /dev/null 2>&1
  echo -e "    ${YELLOW}> Done${NC}"
 }
